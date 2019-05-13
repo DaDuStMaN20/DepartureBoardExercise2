@@ -7,7 +7,7 @@ namespace DepartureBoardExercise2.Models
 {
     public class Flight
     {
-        public int FlightNum { get; set; } = 0;
+        public string FlightNum { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
         public string Time { get; set; } = string.Empty;
         public string Gate { get; set; } = "-";
