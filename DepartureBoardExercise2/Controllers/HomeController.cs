@@ -15,31 +15,14 @@ namespace DepartureBoardExercise.Controllers
     {
         public ActionResult Index()
         {
+            //Get the current directory (as that is where the data files are stored)
+            var currentDirectory = HttpRuntime.AppDomainAppPath;
 
-            Dictionary<string, DataTable> UntiedAirlines = getAllData("C:\\Users\\dw102\\Documents\\ETL_QA_ExerciseFiles\\ExerciseFiles\\UntiedAirlines");
-            Dictionary<string, DataTable> AmonricaAirlines = getAllData("C:\\Users\\dw102\\Documents\\ETL_QA_ExerciseFiles\\ExerciseFiles\\AmonricaAirlines");
+            //Retrieve the data tables for each airline
+            Dictionary<string, DataTable> UntiedAirlines = getAllData(currentDirectory +  "\\FlightData\\UntiedAirlines");
+            Dictionary<string, DataTable> AmonricaAirlines = getAllData(currentDirectory + "\\FlightData\\AmonricaAirlines");
 
-            var result = UntiedAirlines["FLG_RT"].AsEnumerable()
-                    .Join(
-                        UntiedAirlines["AIRPT_DPT"].AsEnumerable(),
-                        flights => flights.Field<string>("SerialNum"),
-                        departure => departure.Field<string>("SerialNum"),
-                        (flights, departure) => new { flights, departure }
-                    )
-                    .Join(
-                        UntiedAirlines["FLG_ST"].AsEnumerable(),
-                        flights => flights.flights.Field<string>("SerialNum"),
-                        status => status.Field<string>("SerialNum"),
-                        (flights, status) => new { flights, status }
-                    )
-                    .Join(
-                        UntiedAirlines["MST_ST"].AsEnumerable(),
-                        flights => flights.status.Field<string>("Status"),
-                        mst => mst.Field<string>("Status"),
-                        (flights, mst) => new { flights, mst }
-                    );
-
-
+            //Extract the flight information from the data tables and put them in a flight object
             var untiedAirlinesFlights = (from flights in UntiedAirlines["FLG_RT"].AsEnumerable()
                                         join departure in UntiedAirlines["AIRPT_DPT"].AsEnumerable()
                                         on flights.Field<string>("SerialNum") equals departure.Field<string>("SerialNum")
@@ -76,83 +59,98 @@ namespace DepartureBoardExercise.Controllers
                                           }).ToList().Distinct(new FlightComparer());
 
 
+            //combine the lists into one list
             List<Flight> model = untiedAirlinesFlights;
             model.AddRange(amonricaAirlinesFlights);
+
+            //return the view with the flight list
             return View(model);
         }
 
-        public ActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public ActionResult Privacy()
-        {
-            return View();
-        }
 
         /// <summary>
-        ///     Gets a list of objects containing the contents of any csv file in a specified folder
+        ///     Gets the data from all .csv files in a specific location
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">The location of the csv files</param>
+        /// <returns>Dictionary of DataTables</returns>
         public Dictionary<string, DataTable> getAllData(string path)
         {
+            
+            //create a base data dictionary
             Dictionary<string, DataTable> data = new Dictionary<string, DataTable>();
 
+            //get the file paths of all files with a .csv extension
             string[] filePaths = Directory.GetFiles(path, "*.csv");
 
+            //for each file
             foreach(var file in filePaths)
             {
+                //get the data table
                 var table = getData(file);
 
+                //add the table to the dictionary with the table name as the key
                 data.Add(table.TableName, table);
             }
 
-
+            //return the tables
             return data;
         }
 
+        /// <summary>
+        ///     Gets the data from each csv file
+        /// </summary>
+        /// <param name="path">The path to the CSV file</param>
+        /// <returns></returns>
         public DataTable getData(string path)
         {
+            //get the filename
             string fileName = path.Split('\\').LastOrDefault();
 
             //Remove the .csv file extension
             fileName = fileName.Substring(0, fileName.Length - 4);
 
+            //create the data table
             DataTable dt = new DataTable();
 
+            //set the table name to the filename
             dt.TableName = fileName;
 
+            //initialize a streamreader
             using (StreamReader sr = new StreamReader(path))
             {
+                //read the headers (always on the first line)
                 string[] headers = sr.ReadLine().Split(',');
+
+                //Add the column names
                 foreach (string header in headers)
                 {
                     dt.Columns.Add(header);
                 }
+
+                //for every subsequent line
                 while (!sr.EndOfStream)
                 {
-                    string[] rows = sr.ReadLine().Split(',');
+
+                    //get all of the values from the row
+                    string[] columnValues = sr.ReadLine().Split(',');
+
+                    //create a new datarow
                     DataRow dr = dt.NewRow();
+
+                    //for each item in headers
                     for (int i = 0; i < headers.Length; i++)
                     {
-                        dr[i] = rows[i];
+                        //add the column value
+                        dr[i] = columnValues[i];
                     }
+
+                    //add the datarow to the datatable
                     dt.Rows.Add(dr);
                 }
 
             }
 
+            //return the data table
             return dt;
 
         }

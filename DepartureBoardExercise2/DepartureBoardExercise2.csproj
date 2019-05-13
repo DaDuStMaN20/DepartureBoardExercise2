@@ -138,6 +138,13 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="FlightData\AmonricaAirlines\FlightDeparture.csv" />
+    <Content Include="FlightData\AmonricaAirlines\FlightPassengers.csv" />
+    <Content Include="FlightData\AmonricaAirlines\FlightStatus.csv" />
+    <Content Include="FlightData\UntiedAirlines\AIRPT_DPT.csv" />
+    <Content Include="FlightData\UntiedAirlines\FLG_RT.csv" />
+    <Content Include="FlightData\UntiedAirlines\FLG_ST.csv" />
+    <Content Include="FlightData\UntiedAirlines\MST_ST.csv" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

@@ -1,0 +1,15 @@
+﻿Flight Number,Destination,# of Passengers,Class
+890,London,30,First
+890,London,70,Business
+890,London,200,Economy
+537,Sao Paulo,10,First
+537,Sao Paulo,60,Business
+537,Sao Paulo,150,Economy
+152,Philadelphia,40,Business
+152,Philadelphia,140,Economy
+997,Los Angeles,20,First
+997,Los Angeles,50,Business
+997,Los Angeles,160,Economy
+141,New York,26,First
+141,New York,50,Business
+141,New York,180,Economy
